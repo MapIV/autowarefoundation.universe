@@ -86,6 +86,10 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   src/tensorrt_yolox.cpp
 )
 
+target_compile_options(${PROJECT_NAME} PRIVATE
+  -Wno-deprecated-declarations
+)
+
 ament_target_dependencies(${PROJECT_NAME}
   OpenCV
 )
