@@ -189,7 +189,11 @@ public:
   nvinfer1::Dims getBindingDimensions(const int32_t index) const;
   int32_t getNbBindings();
   bool setBindingDimensions(const int32_t index, const nvinfer1::Dims & dimensions) const;
+  #if (NV_TENSORRT_MAJOR * 10000) + (NV_TENSORRT_MINOR * 100) + NV_TENSOR_PATCH >= 80500
+  bool enqueueV3(void ** bindings, int numbindings, cudaStream_t stream, cudaEvent_t * input_consumed);
+  #else
   bool enqueueV2(void ** bindings, cudaStream_t stream, cudaEvent_t * input_consumed);
+  #endif
 
   /**
    * @brief output per-layer information
