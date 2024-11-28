@@ -816,7 +816,11 @@ bool TrtYoloX::feedforward(const std::vector<cv::Mat> & images, ObjectArrays & o
     input_d_.get(), out_num_detections_d_.get(), out_boxes_d_.get(), out_scores_d_.get(),
     out_classes_d_.get()};
 
+#if (NV_TENSORRT_MAJOR * 10000) + (NV_TENSORRT_MINOR * 100) + NV_TENSOR_PATCH >= 80500
+  trt_common_->enqueueV3(buffers.data(), buffers.size(), *stream_, nullptr);
+#else
   trt_common_->enqueueV2(buffers.data(), *stream_, nullptr);
+#endif
 
   const auto batch_size = images.size();
   auto out_num_detections = std::make_unique<int32_t[]>(batch_size);
@@ -869,7 +873,11 @@ bool TrtYoloX::feedforwardAndDecode(
   if (multitask_) {
     buffers = {input_d_.get(), out_prob_d_.get(), segmentation_out_prob_d_.get()};
   }
-  trt_common_->enqueueV2(buffers.data(), *stream_, nullptr);
+  #if (NV_TENSORRT_MAJOR * 10000) + (NV_TENSORRT_MINOR * 100) + NV_TENSOR_PATCH >= 80500
+    trt_common_->enqueueV3(buffers.data(), buffers.size(), *stream_, nullptr);
+  #else
+    trt_common_->enqueueV2(buffers.data(), *stream_, nullptr);
+  #endif
 
   const auto batch_size = images.size();
 
@@ -938,7 +946,11 @@ bool TrtYoloX::multiScaleFeedforward(const cv::Mat & image, int batch_size, Obje
     input_d_.get(), out_num_detections_d_.get(), out_boxes_d_.get(), out_scores_d_.get(),
     out_classes_d_.get()};
 
-  trt_common_->enqueueV2(buffers.data(), *stream_, nullptr);
+  #if (NV_TENSORRT_MAJOR * 10000) + (NV_TENSORRT_MINOR * 100) + NV_TENSOR_PATCH >= 80500
+    trt_common_->enqueueV3(buffers.data(), buffers.size(), *stream_, nullptr);
+  #else
+    trt_common_->enqueueV2(buffers.data(), *stream_, nullptr);
+  #endif
 
   auto out_num_detections = std::make_unique<int32_t[]>(batch_size);
   auto out_boxes = std::make_unique<float[]>(4 * batch_size * max_detections_);
@@ -986,7 +998,11 @@ bool TrtYoloX::multiScaleFeedforwardAndDecode(
   const cv::Mat & image, int batch_size, ObjectArrays & objects)
 {
   std::vector<void *> buffers = {input_d_.get(), out_prob_d_.get()};
-  trt_common_->enqueueV2(buffers.data(), *stream_, nullptr);
+  #if (NV_TENSORRT_MAJOR * 10000) + (NV_TENSORRT_MINOR * 100) + NV_TENSOR_PATCH >= 80500
+    trt_common_->enqueueV3(buffers.data(), buffers.size(), *stream_, nullptr);
+  #else
+    trt_common_->enqueueV2(buffers.data(), *stream_, nullptr);
+  #endif
 
   CHECK_CUDA_ERROR(cudaMemcpyAsync(
     out_prob_h_.get(), out_prob_d_.get(), sizeof(float) * out_elem_num_, cudaMemcpyDeviceToHost,
