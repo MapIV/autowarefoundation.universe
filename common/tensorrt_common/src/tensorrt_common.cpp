@@ -461,7 +461,7 @@ bool TrtCommon::buildEngineFromOnnx(
 
   if (batch_config_.at(0) > 1 && (batch_config_.at(0) == batch_config_.at(2))) {
     // Attention : below API is deprecated in TRT8.4
-#if (NV_TENSORRT_MAJOR * 10000) + (NV_TENSORRT_MINOR * 100) + NV_TENSOR_PATCH >= 80500
+#if (NV_TENSORRT_MAJOR * 10000) + (NV_TENSORRT_MINOR * 100) + NV_TENSOR_PATCH < 80500
     builder->setMaxBatchSize(batch_config_.at(2));
 #endif
   } else {
